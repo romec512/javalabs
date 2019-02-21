@@ -1,9 +1,16 @@
 package com.company.Source;
 
-public class Summator implements EvenSummator, OddSummator {
+
+import java.util.Observable;
+
+public class Summator extends Observable implements EvenSummator, OddSummator {
     public int [] mass;
-    public Summator(int[] _mass){
-        this.mass = _mass;
+    private LogUtility logUtility;
+    public Summator(int []args){
+        addObserver(new ConsoleWatcher());
+        Translator translator = new Translator(args);
+        mass = translator.getMass();
+        logUtility = LogUtility.getInstance();
     }
 
     @Override
@@ -17,6 +24,10 @@ public class Summator implements EvenSummator, OddSummator {
                 summ += mass[i];
             }
         }
+        System.out.println("Сумма четных: " + summ);
+        logUtility.log("Сумма четных: " + summ);
+        setChanged(); // Изменяет состояние
+        notifyObservers();
         return summ;
     }
 
@@ -31,6 +42,10 @@ public class Summator implements EvenSummator, OddSummator {
                 summ += mass[i];
             }
         }
+        System.out.println("Сумма нечетных: " + summ);
+        logUtility.log("Сумма нечетных: " + summ);
+        setChanged(); // Изменяет состояние
+        notifyObservers();
         return summ;
     }
 
