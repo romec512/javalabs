@@ -1,6 +1,9 @@
 package com.company.Source;
 
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.util.Observable;
 
 public class Summator extends Observable implements EvenSummator, OddSummator {
@@ -70,5 +73,17 @@ public class Summator extends Observable implements EvenSummator, OddSummator {
                 throw new ExceptionNumLess(i, MIN_ELEMENT);
             }
         }
+    }
+
+    public static int getResult(String expression){
+        ScriptEngineManager mgr = new ScriptEngineManager();
+        ScriptEngine engine = mgr.getEngineByName("JavaScript");
+        int result = -32000;
+        try {
+            result =  Integer.parseInt(engine.eval(expression).toString());
+        } catch (ScriptException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }
