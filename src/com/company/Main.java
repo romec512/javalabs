@@ -44,7 +44,9 @@ public class Main {
 //            System.out.println(e.getMessage());
 //            logUtility.log(e.getMessage());
 //        }
-        TcpServer server = new TcpServer();
+        System.out.println("Введите путь к файлу журнала: ");
+        Scanner scanner = new Scanner(System.in);
+        TcpServer server = new TcpServer(scanner.nextLine());
         server.go();
     }
 }

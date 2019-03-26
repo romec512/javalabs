@@ -3,17 +3,24 @@ import jdk.internal.util.xml.impl.Input;
 
 import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+
 public class TcpServer {
     public static final int PORT = 2500;
     private static final int TIME_SEND_SLEEP = 100;
     private static final int COUNT_TO_SEND = 10;
     private ServerSocket servSocket;
-    public TcpServer(){
+    private String path;
+    public TcpServer(String path){
         try{
             servSocket = new ServerSocket(PORT);
         }catch(IOException e){
             System.err.println("Не удаётся открыть сокет для сервера: " + e.toString());
         }
+        this.path = path;
     }
     public void go(){
         class Listener implements Runnable{
@@ -35,21 +42,15 @@ public class TcpServer {
                         strBuff.append(readed, 0, countBuf);
                         Thread.yield();
                     }
-
+                    Log(path, strBuff.toString());
                     int resultOfExpression = Summator.getResult(strBuff.toString());
                     OutputStream out = socket.getOutputStream();
                     OutputStreamWriter writer = new OutputStreamWriter(out);
                     PrintWriter pWriter = new PrintWriter(writer);
-                    while(count < COUNT_TO_SEND){
-                        count++;
-                        pWriter.print(resultOfExpression);
-                        System.out.println(resultOfExpression);
-                        Thread.sleep(TIME_SEND_SLEEP);
-                    }
+                    pWriter.print(resultOfExpression);
+                    System.out.println(resultOfExpression);
                     pWriter.close();
                 }catch(IOException e){
-                    System.err.println("Исключение: " + e.toString());
-                } catch (InterruptedException e) {
                     System.err.println("Исключение: " + e.toString());
                 }
             }
@@ -64,6 +65,24 @@ public class TcpServer {
             }catch(IOException e){
                 System.err.println("Исключение: " + e.toString());
             }
+        }
+    }
+
+    private void Log(String path, String message){
+        try {
+            Files.write(Paths.get(path), (message + "\n").getBytes(), StandardOpenOption.APPEND);
+        }
+        catch (NoSuchFileException e){
+            File file = new File(path);
+            try {
+                file.createNewFile();
+                Log(path, message);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+        catch (IOException e) {
+            System.out.println(e);
         }
     }
 }
